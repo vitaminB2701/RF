@@ -42,15 +42,6 @@ atom = atom(atomList);
 % Coupling information
 Par.C = calc_coupling(atom);
 
-% Par.C.molid = Par.C.molid(iPick);
-% Par.C.chain = Par.C.chain(iPick);
-% Par.C.resname = Par.C.resname(iPick);
-% Par.C.N = length(iPick);
-% Par.C.R = Par.C.R(iPick,iPick);
-% Par.C.V = Par.C.V(iPick,iPick);
-% Par.C.k2 = Par.C.k2(iPick,iPick);
-% Par.C.D = Par.C.D(iPick);
-
 %% Run calculation
 if isempty(gcp('nocreate'))==1
     parpool('local', Par.BlockSize);
