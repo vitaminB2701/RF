@@ -59,7 +59,6 @@ numExc = numel(Xexc); % number of excitation frequencies
 
 %% Create clustered Hamiltonian
 C = Par.C; % Coupling info
-
 V = C.V;        % Coupling energies [cm^-1]
 R = C.R;        % Center-to-center distances [nm]
 D = C.D;        % Dipole strength [Debye^2]

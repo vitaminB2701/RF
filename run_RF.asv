@@ -22,13 +22,17 @@ Par.taudeph = 0.3; % Pure dephasing time (ps)
 % Output file
 fileout = "RF_out"+'_'+datestr(now,'yyyymmdd_HHMMss')+'.mat';
 
+% Load LHCIItrimer structure
+atom = import_pdb('5xnm.pdb','CGNYS');
+
 % Import exciton parameter table
 Epar = readtable(fullfile('..','Energy','Energy_miniC1S1.xlsx'));
 
 % Coupling information
-atom = import_pdb('5xnm.pdb','CGNYS'); % Load structure
-Par.C = calc_coupling(atom);
-
+C = calc_coupling(atom);
+V = C.V;        % Coupling energies [cm^-1]
+R = C.R;        % Center-to-center distances [nm]
+D = C.D;        % Dipole strength [Debye^2]
 %% Run calculation
 parpool('local', Par.BlockSize);
 RF = redfield_foerster(atom,Epar,Par,fileout);
