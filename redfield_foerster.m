@@ -39,6 +39,7 @@ S0 = Epar.S;    % Huang-Rhys factors
 cinh = Epar.cinh; % inhomogeneous width [cm^-1]
 kd = Epar.kd;   % diagonal decay rates
 kd = diag(kd);
+taudeph = Par.taudeph;
 
 % Save file
 if ~exist('fileout','var')

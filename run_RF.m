@@ -25,15 +25,34 @@ fileout = "RF_out"+'_'+datestr(now,'yyyymmdd_HHMMss')+'.mat';
 % Import exciton parameter table
 Epar = readtable('Energy.xlsx');
 
-% Coupling information
+% Structure file
 atom = import_pdb('5xnm.pdb','G'); % Load structure
-Par.C = calc_coupling(atom);
 
 % Pick a few chromophores
 iPick = [1 2];
 Epar = Epar(iPick,:);
+[chList,chListIndex] = uniquearray([atom.molid]);
+chList(chList>614) = [];
+atomList = [];
+for i = 1:length(iPick)
+    atomList = [atomList chListIndex(iPick(i)):chListIndex(iPick(i)+1)-1];
+end
+atom = atom(atomList);
 
+% Coupling information
+Par.C = calc_coupling(atom);
+
+% Par.C.molid = Par.C.molid(iPick);
+% Par.C.chain = Par.C.chain(iPick);
+% Par.C.resname = Par.C.resname(iPick);
+% Par.C.N = length(iPick);
+% Par.C.R = Par.C.R(iPick,iPick);
+% Par.C.V = Par.C.V(iPick,iPick);
+% Par.C.k2 = Par.C.k2(iPick,iPick);
+% Par.C.D = Par.C.D(iPick);
 
 %% Run calculation
-parpool('local', Par.BlockSize);
+if isempty(gcp('nocreate'))==1
+    parpool('local', Par.BlockSize);
+end
 RF = redfield_foerster(atom,Epar,Par,fileout);
