@@ -47,3 +47,6 @@ if isempty(gcp('nocreate'))==1
     parpool('local', Par.BlockSize);
 end
 RF = redfield_foerster(atom,Epar,Par,fileout);
+
+%% Plot results
+plot_RF;
