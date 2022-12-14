@@ -23,11 +23,16 @@ Par.taudeph = 0.3; % Pure dephasing time (ps)
 fileout = "RF_out"+'_'+datestr(now,'yyyymmdd_HHMMss')+'.mat';
 
 % Import exciton parameter table
-Epar = readtable(fullfile('..','Energy','Energy_miniC1S1.xlsx'));
+Epar = readtable('Energy.xlsx');
 
 % Coupling information
-atom = import_pdb('5xnm.pdb','CGNYS'); % Load structure
+atom = import_pdb('5xnm.pdb','G'); % Load structure
 Par.C = calc_coupling(atom);
+
+% Pick a few chromophores
+iPick = [1 2];
+Epar = Epar(iPick,:);
+
 
 %% Run calculation
 parpool('local', Par.BlockSize);
