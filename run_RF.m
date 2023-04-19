@@ -10,7 +10,7 @@ clear; %close all
 % Parameters
 Par.X = 10000:20:14000; % Wavenumber scale [cm-1]
 Par.T = 300;         % Temperature [K]
-Par.Vc = 10;        % Coupling cutoff (for clustering)
+Par.Vc = 20;        % Coupling cutoff (for clustering)
 Par.Ec = 300;       % Energy difference cutoff (for clustering)
 Par.Rc = 0.5;       % Protein correlation radius [nm]
 Par.t = logspace(-2,3,150);  % Population time (for kinetics) [ps]

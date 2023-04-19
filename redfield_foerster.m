@@ -64,6 +64,7 @@ V = C.V;        % Coupling energies [cm^-1]
 RF.V = V;
 R = C.R;        % Center-to-center distances [nm]
 D = C.D;        % Dipole strength [Debye^2]
+Dvec = C.Dvec;  % Dipole vectors 
 
 % Divide into clusters by coupling with a cutoff Vc
 [G,ig] = cluster_by_coupling(V,Par.Vc,E0,Par.Ec);
@@ -151,7 +152,7 @@ for iter = 1:Niter
     TAd = zeros(numel(Par.t),numX,numExc,BlockSize); % Time-resolved absorption
     TFd = zeros(numel(Par.t),numX,numExc,BlockSize); % Time-resolved fluorescence
 
-    parfor bl = 1:BlockSize
+    for bl = 1:BlockSize
         % Random site energies
         Em = E0 - randn(N,1).*cinh;
         
@@ -320,16 +321,16 @@ toc
         
         % Transition dipole moments
         n = 1.4;          % refractive index
-        mu = sqrt(D*n);   % monomeric dipole moments
+        mu = sqrt(D*n).*Dvec;   % monomeric dipole moments
         mux = U*mu;       % excitonic dipole moments
         mu2 = mux'.^2;
         
         % Absorption
-        Ae = Da.*mu2;  % exciton absorption spectra
+        Ae = Da.*sum(mu2,1);  % exciton absorption spectra
         A = sum(Ae,2); % absorption spectrum
         
         % Fluorescence
-        Fe = Di.*mu2; % exciton emission spectra
+        Fe = Di.*sum(mu2,1); % exciton emission spectra
         
         % kT = kB*T;  % boltzmann energy [cm^-1]
         % fB = exp(-E(:)/kT); fB = fB'/sum(fB);
