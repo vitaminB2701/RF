@@ -19,6 +19,7 @@ out = struct;
 DS.CHL = 15; % Chl b
 DS.CLA = 21; % Chl a
 DS.PHO = 13; % Pheophytin (Raszewski 2008)
+DS.BCL = 44; % Bacterial chlorophyll a
 
 %  n - refractive index
 n = 1.4;
@@ -46,7 +47,7 @@ out.N = N;
 out.R = zeros(N,N);  % distances between pigments (nm)
 out.V = zeros(N,N);  % coupling energies (cm^-1)
 out.k2 = zeros(N,N); % orientation factors
-
+out.Dvec = zeros(N,3); % x y z components of dipole (normalized) [Angstrom]
 %% Dipole strength
 D = zeros(N,1);
 for k = 1:N
@@ -76,6 +77,8 @@ for a = 1:N
                 atom_nc(a).x atom_nc(a).y atom_nc(a).z;
                 atom_nd(a).x atom_nd(a).y atom_nd(a).z]);
 end
+out.Center = Center;
+
 for a = 1:N
     % Centre
     C_a = Center(a,:);
@@ -86,6 +89,7 @@ for a = 1:N
     % normalize (unit vectors)
     norm_a = norm(mu_a);
     mn_a = mu_a ./ norm_a;
+    out.Dvec(a,:) = mn_a;
     
     for b = 1:N
         if b~=a

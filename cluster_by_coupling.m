@@ -2,7 +2,10 @@ function [G,ig] = cluster_by_coupling(V,Vc,E,Ec)
 % CLUSTER_BY_COUPLING - Partition the Hamiltonian into hard clusters
 % based on the coupling between them
 
-% Synthax
+% Updated 20230414: Now loop until Vs reach cutoff, despite all sites are
+%                   assigned
+
+% Syntax
 %   G = cluster_by_coupling(V,Vc)
 %   G = cluster_by_coupling(V,Vc,E,Ec)
 %
@@ -41,10 +44,10 @@ ix = [ia, ib];
 G = zeros(N,1);
 
 % Assign the same cluster to each coupled pair starting with the strongest
-% Loop until G is completed or cutoff Vc is reached
+% Loop until cutoff Vc is reached
 k = 1; % loop index
 g = 0; % cluster counter
-while any(G==0) && Vs(k) > Vc
+while Vs(k) > Vc
     ik = ix(k,:); % get the k-th pair
     ig = G(ik)>0; % read the assigned clusters for pair k
     if all(ig)

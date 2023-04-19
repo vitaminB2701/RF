@@ -60,27 +60,28 @@ numExc = numel(Xexc); % number of excitation frequencies
 
 %% Create clustered Hamiltonian
 C = Par.C; % Coupling info
-
 V = C.V;        % Coupling energies [cm^-1]
+RF.V = V;
 R = C.R;        % Center-to-center distances [nm]
 D = C.D;        % Dipole strength [Debye^2]
 
-RF.V = V;
-RF.chain = C.chain;
 % Divide into clusters by coupling with a cutoff Vc
 [G,ig] = cluster_by_coupling(V,Par.Vc,E0,Par.Ec);
 RF.G = G; RF.ig = ig;
 
 % Display clusters
-clusters = unique(G);
-for c = clusters'
-    fprintf('\n%d: %d',c)
-    ci = find(G==c);
-    for i = ci'
-        fprintf('%s ',[C.chain(i) '.' C.resname{i} num2str(C.molid(i))]);
+if isfield(C,'chain') && isfield(C,'resname')
+    RF.chain = C.chain;
+    clusters = unique(G);
+    for c = clusters'
+        fprintf('\n%d: %d',c)
+        ci = find(G==c);
+        for i = ci'
+            fprintf('%s ',[C.chain(i) '.' C.resname{i} num2str(C.molid(i))]);
+        end
     end
+    fprintf('\n');
 end
-fprintf('\n');
 
 %% Exciton-vibrational line broadening term
 x = 1:1:600;    % [cm^-1]
@@ -89,7 +90,7 @@ w = ang_freq(x);% [rad/ps]
 % Spectral density
 J = spectral_density(w);
 
-% Reduced reorganization energy (Er = lambda/S);
+% Reduced reorganization energy (Er = lambda/S) [rad/ps];
 Er0 = trapz(w,w.*J); 
 
 % Number of vibrational quanta (Bose-Einstein distribution)
