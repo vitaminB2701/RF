@@ -16,17 +16,17 @@ Par.Rc = 0.5;       % Protein correlation radius [nm]
 Par.t = logspace(-2,3,150);  % Population time (for kinetics) [ps]
 Par.exc = 10000:20:14000;    % Excitation frequency (for kinetics) [cm-1]
 Par.BlockSize = 4;  % Number of parallel runs in a block, for static disorder
-Par.Niter = 1; % Number of blocks to run (total=BlockSize*Niter)
+Par.Niter = 25; % Number of blocks to run (total=BlockSize*Niter)
 Par.taudeph = 0.150; % Pure dephasing time (ps)
 
 % Output file
 fileout = "RF_out"+'_'+datestr(now,'yyyymmdd_HHMMss')+'.mat';
 
 % Import exciton parameter table
-Epar = readtable('Energy\LH2.txt');
+Epar = readtable('Energy\miniC1S1.txt');
 
 % Structure file
-atom = import_pdb('pdb\1kzu_full_original.pdb','ABCDEGH'); % Load structure
+atom = import_pdb('pdb\5xnm.pdb','CGNSY'); % Load structure
 % atom = import_pdb('5xnm.pdb','G'); % Load structure
 
 % % Pick a few chromophores
