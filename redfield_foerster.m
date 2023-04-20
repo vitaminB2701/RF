@@ -324,14 +324,13 @@ toc
         mu = sqrt(D*n).*Dvec;   % monomeric dipole moments
         mux = U'*mu;       % excitonic dipole moments
         mu2 = sum(mux'.^2);
-%         for i = 1:3
+
 %         % Absorption
-%         mu(:,i)'*U.*Da.*(
         Ae = Da.*mu2;  % exciton absorption spectra
         A = sum(Ae,2); % absorption spectrum
         
         % Fluorescence
-        Fe = Di.*sum(mu2,1); % exciton emission spectra
+        Fe = Di.*mu2; % exciton emission spectra
         
         % kT = kB*T;  % boltzmann energy [cm^-1]
         % fB = exp(-E(:)/kT); fB = fB'/sum(fB);
