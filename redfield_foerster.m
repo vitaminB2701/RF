@@ -323,11 +323,11 @@ toc
         n = 1.4;          % refractive index
         mu = sqrt(D*n).*Dvec;   % monomeric dipole moments
         mux = U'*mu;       % excitonic dipole moments
-        mu2 = mux'.^2;
+        mu2 = sum(mux'.^2);
 %         for i = 1:3
 %         % Absorption
 %         mu(:,i)'*U.*Da.*(
-        Ae = Da.*sum(mu2,1);  % exciton absorption spectra
+        Ae = Da.*mu2;  % exciton absorption spectra
         A = sum(Ae,2); % absorption spectrum
         
         % Fluorescence
