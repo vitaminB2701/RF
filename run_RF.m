@@ -25,7 +25,7 @@ Par.pdbfile = {'pdb\1kzu_full_original.pdb','ABCDEGH'}; % File containing pdb na
 fileout = "RF_out"+'_'+datestr(now,'yyyymmdd_HHMMss')+'.mat';
 
 % Import exciton parameter table
-Epar = readtable('Par.energyfile');
+Epar = readtable(Par.energyfile);
 
 % Structure file
 atom = import_pdb(Par.pdbfile{1},Par.pdbfile{2}); % Load structure
