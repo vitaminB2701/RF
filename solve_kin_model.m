@@ -1,6 +1,7 @@
 function [P, TA, TF, tau, a] = solve_kin_model(X,Xexc, t, K, Ae, Fe)
 % Solve kinetic model and calculate species populations and fluorescence 
-
+Ae = (Ae(:,1:3:end) + Ae(:,2:3:end) + Ae(:,3:3:end))/3;
+Fe = (Fe(:,1:3:end) + Fe(:,2:3:end) + Fe(:,3:3:end))/3;
 % Initial population
 N = size(K,1);
 
