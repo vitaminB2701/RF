@@ -174,7 +174,7 @@ for iter = 1:Niter
         Fed(:,:,bl) = Fe;
         
         % Kinetics
-        [P,TAd(:,:,:,bl),TFd(:,:,:,bl)] = solve_kin_model(X,Xexc,t,K,Ae,Fe);        
+        [P,TAd(:,:,:,bl),TFd(:,:,:,bl)] = solve_kin_model(X,Xexc,t,K,Ae,Fe,0);        
         Pd(:,:,:,bl) = P;
         
         % Steady-state emission

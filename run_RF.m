@@ -8,18 +8,18 @@ clear; %close all
 
 %% Set-up
 % Parameters
-Par.X = 14000:20:16000; % Wavenumber scale [cm-1]
-Par.T = 80;         % Temperature [K]
+Par.X = 10000:20:14000; % Wavenumber scale [cm-1]
+Par.T = 300;         % Temperature [K]
 Par.Vc = 20;        % Coupling cutoff (for clustering)
 Par.Ec = 300;       % Energy difference cutoff (for clustering)
 Par.Rc = 0.5;       % Protein correlation radius [nm]
 Par.t = logspace(-2,3,150);  % Population time (for kinetics) [ps]
-Par.exc = 14000:20:16000;    % Excitation frequency (for kinetics) [cm-1]
+Par.exc = 10000:20:14000;    % Excitation frequency (for kinetics) [cm-1]
 Par.BlockSize = 4;  % Number of parallel runs in a block, for static disorder
-Par.Niter = 250; % Number of blocks to run (total=BlockSize*Niter)
-Par.taudeph = 0.300; % Pure dephasing time (ps)
-Par.energyfile = fullfile('Energy','miniC1S1.txt'); % File containing ID, site E,...
-Par.pdbfile = {fullfile('pdb','5xnm.pdb'),'CGYNS'}; % File containing pdb name and specify chains
+Par.Niter = 1; % Number of blocks to run (total=BlockSize*Niter)
+Par.taudeph = 0.150; % Pure dephasing time (ps)
+Par.energyfile = fullfile('Energy','LH2.txt'); % File containing ID, site E,...
+Par.pdbfile = {fullfile('pdb','1kzu_full_original.pdb'),'ABCDEGH'}; % File containing pdb name and specify chains
 
 % Output file
 fileout = "RF_out"+'_'+datestr(now,'yyyymmdd_HHMMss')+'.mat';
@@ -35,7 +35,7 @@ Par.C = calc_coupling(atom);
 
 %% Run calculation
 % Initiate parallel pool if no pool presents
-if isempty(gcp('nocreate'))==1
-    parpool('local', Par.BlockSize);
-end
+% if isempty(gcp('nocreate'))==1
+%     parpool('local', Par.BlockSize);
+% end
 RF = redfield_foerster(atom,Epar,Par,fileout);

@@ -1,4 +1,4 @@
-function [P, TA, TF, tau, a] = solve_kin_model(X,Xexc, t, K, Ae, Fe)
+function [P, TA, TF, tau, a] = solve_kin_model(X,Xexc, t, K, Ae, Fe, beam_angle)
 % Solve kinetic model and calculate species populations and fluorescence 
 
 % Initial population
@@ -13,6 +13,17 @@ K = K - diag(diag(K)) - diag(sum(K));
 U1 = U';
 tau = 1./diag(-L);
 exptau = exp(-t./tau);
+
+% Polarization weightage in parallel pumpprobe (dia 1/5, cross 1/15)
+polpar = ones(N)*1/15;
+polpar = polpar - diag(diag(polpar)) + eye(N)*1/5;
+
+% Polarization weightage in perpendicular pumpprobe (dia 1/15, cross 2/15)
+polper = ones(N)*2/15;
+polper = polper - diag(diag(polper)) + eye(N)*1/15;
+
+% Polarization weightage in arbitrary config
+pol = polpar*cos(beam_angle/180*pi)^2 + polper*sin(beam_angle/180*pi)^2;
 
 % Loop over excitations
 P = zeros(N,numel(t),numel(Xexc));
@@ -32,9 +43,9 @@ for k = 1:numel(Xexc)
 
     % Absorption and fluorescence kinetics
     if exist('Ae','var')
-        ta = Ae*p; TA(:,:,k) = ta';    
+        ta = Ae*(p.*pol); TA(:,:,k) = ta';
     end
     if exist('Fe','var')
-        tf = Fe*p; TF(:,:,k) = tf';
+        tf = Fe*(p.*pol); TF(:,:,k) = tf';
     end
 end
