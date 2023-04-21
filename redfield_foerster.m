@@ -134,8 +134,8 @@ RF.U = zeros(N,N);  % Averaged eigenvectors
 RF.K = zeros(N,N);  % Averaged rate constants
 RF.A = zeros(numX,1); % Averaged Absorption
 RF.F = zeros(numX,1); % Averaged Fluorescence
-RF.Ae = zeros(numX,N*3);
-RF.Fe = zeros(numX,N*3);
+RF.Ae = zeros(numX,N);
+RF.Fe = zeros(numX,N);
 RF.P  = zeros(N,numel(Par.t),numExc); % Averaged population
 RF.TA = zeros(numel(Par.t),numX,numExc); % Time-resolved absorption
 RF.TF = zeros(numel(Par.t),numX,numExc); % Time-resolved fluorescence
@@ -146,13 +146,13 @@ for iter = 1:Niter
     Kd = zeros(N,N,BlockSize);  % Averaged rate constants
     Ad = zeros(numX,BlockSize); % Averaged Absorption
     Fd = zeros(numX,BlockSize); % Averaged Fluorescence
-    Aed = zeros(numX,N*3,BlockSize); % Exciton absorption
-    Fed = zeros(numX,N*3,BlockSize); % Exciton fluorescence
+    Aed = zeros(numX,N,BlockSize); % Exciton absorption
+    Fed = zeros(numX,N,BlockSize); % Exciton fluorescence
     Pd  = zeros(N,numel(Par.t),numExc,BlockSize); % Averaged population
     TAd = zeros(numel(Par.t),numX,numExc,BlockSize); % Time-resolved absorption
     TFd = zeros(numel(Par.t),numX,numExc,BlockSize); % Time-resolved fluorescence
 
-    parfor bl = 1:BlockSize
+    for bl = 1:BlockSize
         % Random site energies
         Em = E0 - randn(N,1).*cinh;
         
@@ -174,13 +174,11 @@ for iter = 1:Niter
         Fed(:,:,bl) = Fe;
         
         % Kinetics
-        
         [P,TAd(:,:,:,bl),TFd(:,:,:,bl)] = solve_kin_model(X,Xexc,t,K,Ae,Fe);        
         Pd(:,:,:,bl) = P;
         
         % Steady-state emission
         p_i = trapz(t,mean(P,3)');
-        p_i = repmat(p_i,3,1); p_i = p_i(:)';
         Fd(:,bl) = sum(Fe.*p_i,2);
     end
     
@@ -325,15 +323,14 @@ toc
         n = 1.4;          % refractive index
         mu = sqrt(D*n).*Dvec;   % monomeric dipole moments
         mux = U'*mu;       % excitonic dipole moments
-        mu2 = mux'.^2;
-        mu2 = mu2(:)'; %[x1 y1 z1 x2 y2 z2 ...] components
+        mu2 = sum(mux'.^2);
 
 %         % Absorption
-        Ae = repmat(Da,1,3).*mu2;  % exciton absorption spectra
+        Ae = Da.*mu2;  % exciton absorption spectra
         A = sum(Ae,2); % absorption spectrum
         
         % Fluorescence
-        Fe = repmat(Di,1,3).*mu2; % exciton emission spectra
+        Fe = Di.*mu2; % exciton emission spectra
         
         % kT = kB*T;  % boltzmann energy [cm^-1]
         % fB = exp(-E(:)/kT); fB = fB'/sum(fB);
