@@ -201,7 +201,7 @@ for iter = 1:Niter
     RF.Kfull(:,:,(iter-1)*BlockSize+1:iter*BlockSize) = Kd;
     
     % Save result
-    save(fileout,'atom','Epar','Par','X','RF','iter')
+    save(fileout,'atom','Epar','Par','X','RF','iter','C')
     
     % Display progress
     if iter==1, fprintf('\nIterations:'); end
