@@ -230,7 +230,7 @@ toc
             
             % Exciton Huang-Rhys factors
             Uc = U(ix,ix);
-            Sc = Uc.^2 * S0(ix);
+            Sc = Uc'.^2 * S0(ix);
             
             % Calculate Redfield rates
             if numel(find(ix))>1
