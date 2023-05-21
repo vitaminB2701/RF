@@ -1,4 +1,4 @@
-# Structure-based calculation using Redfied -- generalized Förster theories
+# Structure-based calculation using Redfied - generalized Förster theories
 
 The codes should be run in MATLAB.
 
