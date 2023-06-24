@@ -2,11 +2,11 @@
 
 The codes should be run in MATLAB.
 
-Run run_RF.m
+1. Run run_RF.m
 
-Plot main results with plot_RF.m
+2. Plot main results with plot_RF.m
 
-Reference:
+### References:
 
 G. Raszewski, T. Renger, Light Harvesting in Photosystem II Core Complexes Is Limited by the Transfer to the Trap:  Can the Core Complex Turn into a Photoprotective Mode? Journal of the American Chemical Society 130, 4431-4446 (2008).
 
