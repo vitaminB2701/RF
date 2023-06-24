@@ -1,4 +1,4 @@
-% Redfield-Förster model
+% Redfield-Forster model
 %
 % Input
 % 1) PDB file containing coordinates of Mg, Nb and Nd atoms for each Chl
