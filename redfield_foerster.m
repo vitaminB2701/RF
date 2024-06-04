@@ -137,8 +137,10 @@ RF.F = zeros(numX,1); % Averaged Fluorescence
 RF.Ae = zeros(numX,N);
 RF.Fe = zeros(numX,N);
 RF.P  = zeros(N,numel(Par.t),numExc); % Averaged population
-RF.TA = zeros(numel(Par.t),numX,numExc); % Time-resolved absorption
-RF.TF = zeros(numel(Par.t),numX,numExc); % Time-resolved fluorescence
+RF.TA1 = zeros(numel(Par.t),numX,numExc); % Time-resolved absorption
+RF.TA2 = RF.TA1;
+RF.TF1 = zeros(numel(Par.t),numX,numExc); % Time-resolved fluorescence
+RF.TF2 = RF.TF1;
 
 for iter = 1:Niter
     Ed = zeros(N,BlockSize);    % Averaged exciton energies
@@ -148,10 +150,12 @@ for iter = 1:Niter
     Fd = zeros(numX,BlockSize); % Averaged Fluorescence
     Aed = zeros(numX,N,BlockSize); % Exciton absorption
     Fed = zeros(numX,N,BlockSize); % Exciton fluorescence
-    Pd  = zeros(N,numel(Par.t),numExc,BlockSize); % Averaged population
-    TAd = zeros(numel(Par.t),numX,numExc,BlockSize); % Time-resolved absorption
-    TFd = zeros(numel(Par.t),numX,numExc,BlockSize); % Time-resolved fluorescence
-
+    Pd = zeros(N,numel(Par.t),numExc,BlockSize); % Averaged population
+    TA1d = zeros(numel(Par.t),numX,numExc,BlockSize); % Time-resolved absorption
+    TA2d = TA1d;
+    TF1d = zeros(numel(Par.t),numX,numExc,BlockSize); % Time-resolved fluorescence
+    TF2d = TF1d;    
+    
     for bl = 1:BlockSize
         % Random site energies
         Em = E0 - randn(N,1).*cinh;
@@ -169,16 +173,23 @@ for iter = 1:Niter
         Kd(:,:,bl) = K;
         
         % Calculate linear spectra
-        [Ad(:,bl),Ae,Fe] = feval(fun_linear_spectra,E,U,Da,Di);
+        [Ad(:,bl),Ae,Fe,mux] = feval(fun_linear_spectra,E,U,Da,Di);
         Aed(:,:,bl) = Ae;
         Fed(:,:,bl) = Fe;
         
+        % Calculate polarization scaling factor
+        mue = mux./sqrt(sum(mux.^2,2)); % Exciton dipole moment (unit vector)
+        leg2 = (3*(mue*mue').^2-1)/2; % Legendre poly2 for each pair of excitons
+        pol_par = (4*leg2+5)/45; % Factor for parallel pumpprobe
+        pol_per = (5-2*leg2)/45; % Factor for perpendicular pumpprobe
+        
         % Kinetics
-        [P,TAd(:,:,:,bl),TFd(:,:,:,bl)] = solve_kin_model(X,Xexc,t,K,Ae,Fe);        
-        Pd(:,:,:,bl) = P;
+        [P1,P2,TA1d(:,:,:,bl),TA2d(:,:,:,bl),TF1d(:,:,:,bl),TF2d(:,:,:,bl)]...
+            = solve_kin_model(X,Xexc,t,K,Ae,Fe,pol_par,pol_per);        
+        Pd(:,:,:,bl) = P1+2*P2;
         
         % Steady-state emission
-        p_i = trapz(t,mean(P,3)');
+        p_i = trapz(t,mean(P1+2*P2,3)');
         Fd(:,bl) = sum(Fe.*p_i,2);
     end
     
@@ -193,8 +204,10 @@ for iter = 1:Niter
     RF.Ae = RF.Ae*ri + mean(Aed,3)/iter;
     RF.Fe = RF.Fe*ri + mean(Fed,3)/iter;
     RF.P  = RF.P*ri + mean(Pd,4)/iter;
-    RF.TA = RF.TA*ri + mean(TAd,4)/iter;
-    RF.TF = RF.TF*ri + mean(TFd,4)/iter;
+    RF.TA1 = RF.TA1*ri + mean(TA1d,4)/iter;
+    RF.TA2 = RF.TA2*ri + mean(TA2d,4)/iter;
+    RF.TF1 = RF.TF1*ri + mean(TF1d,4)/iter;
+    RF.TF2 = RF.TF2*ri + mean(TF2d,4)/iter;
     
     RF.Efull(:,(iter-1)*BlockSize+1:iter*BlockSize) = Ed;
     RF.Ufull(:,:,(iter-1)*BlockSize+1:iter*BlockSize) = Ud;
@@ -317,13 +330,13 @@ toc
     end
 
 %   Calculate linear spectra
-    function [A,Ae,Fe] = linear_spectra(E,U,Da,Di)
+    function [A,Ae,Fe,mux] = linear_spectra(E,U,Da,Di)
         
         % Transition dipole moments
         n = 1.4;          % refractive index
         mu = sqrt(D*n).*Dvec;   % monomeric dipole moments
         mux = U'*mu;       % excitonic dipole moments
-        mu2 = sum(mux'.^2);
+        mu2 = sum(mux'.^2); % Sum square of exciton dipole moments
 
 %         % Absorption
         Ae = Da.*mu2;  % exciton absorption spectra
