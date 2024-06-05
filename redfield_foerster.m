@@ -213,7 +213,7 @@ for iter = 1:Niter
     RF.Ufull(:,:,(iter-1)*BlockSize+1:iter*BlockSize) = Ud;
     RF.Kfull(:,:,(iter-1)*BlockSize+1:iter*BlockSize) = Kd;
     
-    % Save result
+    % Save result by progress
     elapsed_time = toc;
     save(fileout,'atom','Epar','Par','X','RF','iter','C','elapsed_time')
     
@@ -223,7 +223,7 @@ for iter = 1:Niter
     fprintf(' %d',iter)
     
 end
-fprintf('\n');
+fprintf('\nDone!\n');
 
 
 %% Subroutines
