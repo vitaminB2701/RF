@@ -214,7 +214,8 @@ for iter = 1:Niter
     RF.Kfull(:,:,(iter-1)*BlockSize+1:iter*BlockSize) = Kd;
     
     % Save result
-    save(fileout,'atom','Epar','Par','X','RF','iter','C')
+    elapsed_time = toc;
+    save(fileout,'atom','Epar','Par','X','RF','iter','C','elapsed_time')
     
     % Display progress
     if iter==1, fprintf('\nIterations:'); end
@@ -222,9 +223,8 @@ for iter = 1:Niter
     fprintf(' %d',iter)
     
 end
-
 fprintf('\n');
-toc
+
 
 %% Subroutines
     % Calculate spectra and dynamics for one realization
