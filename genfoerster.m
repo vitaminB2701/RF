@@ -1,5 +1,5 @@
-function K = genfoerster(X,E,U,V,Da,Di,ig,T)
-%GENFOERSTER Calculate rates using generalized Förster theory
+function K = genfoerster(X,E,U,V,Da,Di,ig,T,vibHR,Dma,Dmi)
+% GENFOERSTER Calculate rates using generalized Förster theory
 %  Raszewski & Renger 2008, eq. 21
 %
 % Synthax
@@ -15,12 +15,22 @@ function K = genfoerster(X,E,U,V,Da,Di,ig,T)
 %
 
 % Constants
-c0 = 2.997e10; % speed of light [cm/s]
+c0 = 2.998e10; % speed of light [cm/s]
 kB = 0.695; % boltzmann constant [cm^-1/K]
 kT = kB*T;  % boltzmann energy [cm^-1]
 
 N = size(U,1);
 K = zeros(N);
+FC00sq = prod(exp(-vibHR));
+FC01sq = prod(exp(-vibHR).*vibHR);
+
+% Area-normalizing exciton lineshapes and intravib lineshapes
+Da = Da./trapz(X,Da,1);
+Di = Di./trapz(X,Di,1);
+if sum(vibHR)~=0
+    Dma = Dma./trapz(X,Dma,1);
+    Dmi = Dmi./trapz(X,Dmi,1);
+end
 
 % Loop over excitonic clusters (domains)
 Ng = size(ig,2);
@@ -29,34 +39,44 @@ for a = 1:Ng
     for b = 1:Ng
         if b~=a
             ib = ig(:,b);
-            for m = find(ia)'
-                for n = find(ib)'
+            for A = find(ia)'
+                for B = find(ib)'
                     
-                    % Calculate coupling energy Vmn
-                    % Raszewski & Renger 2008 eq. 8
-                    if E(m) >= E(n) % Only for downhill transfer
-                        Vmn = 0;
+                    % Calculate couplings V_MN V_Mnb V_maN
+                    % Renger et al J Plan Physiol 2011
+                    if E(A) >= E(B) % Only for downhill transfer
+                        V_AB = 0;
+                        V_Anb = 0;
+                        V_maB = 0;
+                        k2 = 0; k3 = 0;
+                        for nb = 1:N
+                            for ma = 1:N
+                                V_AB = V_AB + U(ma,A)*U(nb,B)*V(ma,nb)*FC00sq;
+                                V_Anb = V_Anb + U(ma,A)*V(ma,nb)*sqrt(FC00sq)*sqrt(FC01sq);
+                            end
+                            k2 = k2 + 1.183*U(nb,B)^2*V_Anb^2*trapz(X,Di(:,A).*Dma(:,nb));
+                        end
                         for ma = 1:N
                             for nb = 1:N
-                                Vmn = Vmn + U(ma,m)*U(nb,n)*V(ma,nb);
+                                V_maB = V_maB + U(nb,B)*V(nb,ma)*sqrt(FC00sq)*sqrt(FC01sq);
                             end
+                            k3 = k3 + 1.183*U(ma,A)^2*V_maB^2*trapz(X,Dmi(:,ma).*Da(:,B));
                         end
                         
                         % Calculate rate constant
-                        % Raszewski & Renger 2008 eq. 21
+                        % Renger et al J Plan Physiol 2011
                         % Pullerits et al 1997 JPC
-                        K(n,m) = 1.183*Vmn^2*trapz(X,Di(:,m).*Da(:,n));
+                        K(B,A) = 1.183*V_AB^2*trapz(X,Di(:,A).*Da(:,B)) + k2 + k3;
                         
                         % Calculate uphill rate using detailed balance
-                        K(m,n) = exp(-(E(m)-E(n))/kT)*K(n,m);
+                        K(A,B) = exp(-(E(A)-E(B))/kT)*K(B,A);
                     end
                 end
             end
         end
     end
 end
-% % Convert K to [ps^-1]
-% K = K*1e-12;
-
+% Note: the 1.183 factor is to convert trapz (intergral) in cm-1, couplings
+% in cm-1 into 2pi/hbar in SI and yield K in 1/ps
 end
 

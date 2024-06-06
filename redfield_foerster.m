@@ -170,7 +170,7 @@ for iter = 1:Niter
         [E,U,Kr,Da,Di,Dma,Dmi] = feval(fun_redfield_lineshapes,Em);
         
         % Förster rate constants
-        Kf = genfoerster(X,E,U,V,Da,Di,ig,T);
+        Kf = genfoerster(X,E,U,V,Da,Di,ig,T,vibHR,Dma,Dmi);
         
         % Save
         Ed(:,bl) = E;
@@ -280,8 +280,8 @@ toc
             for nvibmode = 1:numel(vibmode) %intravib modes
                 wma = ang_freq(Em(nChl)+vibmode(nvibmode))-Er0*S0(nChl);
                 wmi = ang_freq(Em(nChl)-vibmode(nvibmode))-Er0*S0(nChl);
-                intraviba = intraviba + FCi01sq(nvibmode)*exp(1i.*(W'-wma)*t1).*exp(S0(nChl)*(Gt-Gt(1))-abs(t1)/taudeph);
-                intravibi = intravibi + FCi01sq(nvibmode)*exp(-1i.*(W'-wmi)*t1).*exp(S0(nChl)*(Gt-Gt(1))-abs(t1)/taudeph);
+                intraviba = intraviba + FCi01sq(nvibmode)*exp(1i.*(W'-wma)*t1).*exp(S0(nChl)*(Gt-Gt(1))-abs(t1)/taudeph*8);
+                intravibi = intravibi + FCi01sq(nvibmode)*exp(-1i.*(W'-wmi)*t1).*exp(S0(nChl)*(Gt-Gt(1))-abs(t1)/taudeph*8);
             end
             Dma(:,nChl) = real(trapz(t1,intraviba,2))/(2*pi);
             Dmi(:,nChl) = real(trapz(t1,intravibi,2))/(2*pi);
