@@ -1,4 +1,4 @@
-function RF = redfield_foerster(atom,Epar,Par,fileout)
+function RF = redfield_foerster(atom,Epar,Par,vibpar,fileout)
 % Redfield-Förster model calculation
 %
 % Input
@@ -119,6 +119,16 @@ nvibn = 1./(exp(-x/(kB*T))-1); % (eq. S5)
 J = spectral_density(w);
 Jn = spectral_density(-w);
 
+%% Intramolecular vibrational term                         
+vibmode = vibpar(:,1);                                               
+vibHR = vibpar(:,2); 
+FCi00sq = exp(-vibHR);
+FC00sq = prod(FCi00sq);
+FCi00 = sqrt(FCi00sq);
+FC00 = sqrt(FC00sq);
+FCi01sq = exp(-vibHR).*vibHR;
+FCi01 = sqrt(FCi01sq);
+
 %% Monte-Carlo sampling of disorder
 rng;
 
@@ -157,7 +167,7 @@ for iter = 1:Niter
         Em = E0 - randn(N,1).*cinh;
         
         % Redfield and exciton lineshapes
-        [E,U,Kr,Da,Di] = feval(fun_redfield_lineshapes,Em);
+        [E,U,Kr,Da,Di,Dma,Dmi] = feval(fun_redfield_lineshapes,Em);
         
         % Förster rate constants
         Kf = genfoerster(X,E,U,V,Da,Di,ig,T);
@@ -169,12 +179,12 @@ for iter = 1:Niter
         Kd(:,:,bl) = K;
         
         % Calculate linear spectra
-        [Ad(:,bl),Ae,Fe] = feval(fun_linear_spectra,E,U,Da,Di);
+        [Ad(:,bl),Ae,Fe,mu2] = feval(fun_linear_spectra,E,U,Da,Di,Dma,Dmi);
         Aed(:,:,bl) = Ae;
         Fed(:,:,bl) = Fe;
         
         % Kinetics
-        [P,TAd(:,:,:,bl),TFd(:,:,:,bl)] = solve_kin_model(X,Xexc,t,K,Ae,Fe);        
+        [P,TAd(:,:,:,bl),TFd(:,:,:,bl)] = solve_kin_model(X,Xexc,t,K,Ae,Da,Di,mu2);        
         Pd(:,:,:,bl) = P;
         
         % Steady-state emission
@@ -215,7 +225,7 @@ toc
 
 %% Subroutines
     % Calculate spectra and dynamics for one realization
-    function [E,U,Kr,Da,Di] = redfield_lineshapes(Em)
+    function [E,U,Kr,Da,Di,Dma,Dmi] = redfield_lineshapes(Em)
         % Diagonalize partitioned Hamiltonian
         [E,U] = diag_hamiltonian(Em);
         
@@ -224,7 +234,7 @@ toc
         
         Da = zeros(length(X),N); % absorption lineshape
         Di = zeros(length(X),N); % emission lineshape
-        
+        [Dma,Dmi] = intraviblineshape(Em,D); % localized intravibronic lineshape
         for k = 1:size(ig,2)
             ix = ig(:,k); % cluster indices
             
@@ -245,7 +255,7 @@ toc
     % Diagonalize Hamiltonian by clusters
     function [E,U] = diag_hamiltonian(Em)
         n = numel(Em);
-        H = diag(Em) + 1*V;
+        H = diag(Em) + V;
         E = zeros(n,1);
         U = zeros(n);
         for g = 1:size(ig,2)        
@@ -258,6 +268,29 @@ toc
     end
 
     %Calculate absorption and emission exciton lineshapes
+    function [Dma,Dmi] = intraviblineshape(Em,D)
+        Dma = zeros(numX,numel(Em));
+        Dmi = zeros(numX,numel(Em));
+        % Transition dipole moments
+        n = 1.4;                        % refractive index
+        mupig = sqrt(D);                % full pigments transition dipole moments
+        for nChl = 1:numel(Em)
+            intraviba = zeros(1,numel(t1));
+            intravibi = zeros(1,numel(t1));
+            for nvibmode = 1:numel(vibmode) %intravib modes
+                wma = ang_freq(Em(nChl)+vibmode(nvibmode))-Er0*S0(nChl);
+                wmi = ang_freq(Em(nChl)-vibmode(nvibmode))-Er0*S0(nChl);
+                intraviba = intraviba + FCi01sq(nvibmode)*exp(1i.*(W'-wma)*t1).*exp(S0(nChl)*(Gt-Gt(1))-abs(t1)/taudeph);
+                intravibi = intravibi + FCi01sq(nvibmode)*exp(-1i.*(W'-wmi)*t1).*exp(S0(nChl)*(Gt-Gt(1))-abs(t1)/taudeph);
+            end
+            Dma(:,nChl) = real(trapz(t1,intraviba,2))/(2*pi);
+            Dmi(:,nChl) = real(trapz(t1,intravibi,2))/(2*pi);
+        end
+        % Normalize
+%         Dma = Dma./trapz(X,Dma,1);
+%         Dmi = Dmi./trapz(X,Dmi,1);
+    end
+
     function [Da,Di] = lineshape(E,S,K,Y)
         % Raszewski & Renger 2008
         n = numel(E);
@@ -304,33 +337,34 @@ toc
             % Renormalized frequency
             wk = ang_freq(E(k)) - Y(k,k)*Er0*S(k) + ck;
             
-            for xi = 1:numel(X)
-                a = exp(1i.*(W(xi) - wk).*t1).*eVib;
-                f = exp(-1i.*(W(xi)- wk).*t1).*eVib;
-                Da(xi,k) = real(trapz(t1,a));
-                Di(xi,k) = real(trapz(t1,f));
-            end
+            % Exciton lineshape
+            a = exp(1i.*(W' - wk)*t1).*eVib;
+            f = exp(-1i.*(W' - wk)*t1).*eVib;
+            Da(:,k) = real(trapz(t1,a,2))/(2*pi);
+            Di(:,k) = real(trapz(t1,f,2))/(2*pi);
+                       
             % Normalize the lineshapes on a wavenumber scale
-            Da(:,k) = Da(:,k) ./ trapz(X,Da(:,k));
-            Di(:,k) = Di(:,k) ./ trapz(X,Di(:,k));
+%             Da(:,k) = Da(:,k) ./ trapz(X,Da(:,k));
+%             Di(:,k) = Di(:,k) ./ trapz(X,Di(:,k));
         end
     end
 
 %   Calculate linear spectra
-    function [A,Ae,Fe] = linear_spectra(E,U,Da,Di)
+    function [A,Ae,Fe,mux2] = linear_spectra(E,U,Da,Di,Dma,Dmi)
         
         % Transition dipole moments
         n = 1.4;          % refractive index
         mu = sqrt(D*n).*Dvec;   % monomeric dipole moments
-        mux = U'*mu;       % excitonic dipole moments
-        mu2 = sum(mux'.^2);
-
+        mux = U'*mu*FC00;       % excitonic dipole moments
+        mux2 = sum(mux'.^2);
+        Dma_x = (n*D'.*Dma)*(U.^2);
+        Dmi_x = (n*D'.*Dmi)*(U.^2);
 %         % Absorption
-        Ae = Da.*mu2;  % exciton absorption spectra
+        Ae = Da.*mux2 + Dma_x;  % exciton absorption spectra
         A = sum(Ae,2); % absorption spectrum
         
         % Fluorescence
-        Fe = Di.*mu2; % exciton emission spectra
+        Fe = Di.*mux2 + Dmi_x; % exciton emission spectra
         
         % kT = kB*T;  % boltzmann energy [cm^-1]
         % fB = exp(-E(:)/kT); fB = fB'/sum(fB);

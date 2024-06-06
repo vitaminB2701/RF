@@ -1,4 +1,4 @@
-function [P, TA, TF, tau, a] = solve_kin_model(X,Xexc, t, K, Ae, Fe)
+function [P, TA, TF, tau, a] = solve_kin_model(X,Xexc, t, K, Ae, Da, Di, mu2)
 % Solve kinetic model and calculate species populations and fluorescence 
 
 % Initial population
@@ -32,9 +32,9 @@ for k = 1:numel(Xexc)
 
     % Absorption and fluorescence kinetics
     if exist('Ae','var')
-        ta = Ae*p; TA(:,:,k) = ta';    
+        ta = (mu2.*Da)*p; TA(:,:,k) = ta';    
     end
     if exist('Fe','var')
-        tf = Fe*p; TF(:,:,k) = tf';
+        tf = (mu2.*Di)*p; TF(:,:,k) = tf';
     end
 end

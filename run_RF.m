@@ -15,8 +15,8 @@ Par.Ec = 300;       % Energy difference cutoff (for clustering)
 Par.Rc = 0.5;       % Protein correlation radius [nm]
 Par.t = logspace(-2,3,150);  % Population time (for kinetics) [ps]
 Par.exc = 14000:20:16000;    % Excitation frequency (for kinetics) [cm-1]
-Par.BlockSize = 8;  % Number of parallel runs in a block, for static disorder
-Par.Niter = 125; % Number of blocks to run (total=BlockSize*Niter)
+Par.BlockSize = 6;  % Number of parallel runs in a block, for static disorder
+Par.Niter = 20; % Number of blocks to run (total=BlockSize*Niter)
 Par.taudeph = 0.300; % Pure dephasing time (ps)
 Par.energyfile = fullfile('Energy','LHCIItri.txt'); % File containing ID, site E,...
 Par.pdbfile = {fullfile('pdb','5xnm.pdb'),'GNY'}; % File containing pdb name and specify chains
@@ -39,4 +39,4 @@ Par.C = calc_coupling(atom);
 %if isempty(gcp('nocreate'))==1
 %    parpool('local', Par.BlockSize);
 %end
-RF = redfield_foerster(atom,Epar,Par,fileout);
+RF = redfield_foerster(atom,Epar,Par,vibpar,fileout);
