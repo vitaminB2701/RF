@@ -18,14 +18,15 @@ Par.exc = 14000:20:16000;    % Excitation frequency (for kinetics) [cm-1]
 Par.BlockSize = 8;  % Number of parallel runs in a block, for static disorder
 Par.Niter = 125; % Number of blocks to run (total=BlockSize*Niter)
 Par.taudeph = 0.300; % Pure dephasing time (ps)
-Par.energyfile = fullfile('Energy','miniC1S1nokd.txt'); % File containing ID, site E,...
-Par.pdbfile = {fullfile('pdb','5xnm.pdb'),'CGYNS'}; % File containing pdb name and specify chains
+Par.energyfile = fullfile('Energy','LHCIItri.txt'); % File containing ID, site E,...
+Par.pdbfile = {fullfile('pdb','5xnm.pdb'),'GNY'}; % File containing pdb name and specify chains
 
 % Output file
 fileout = "RF_out"+'_'+datestr(now,'yyyymmdd_HHMMss')+'.mat';
 
 % Import exciton parameter table
 Epar = readtable(Par.energyfile);
+vibpar = load('Vibpar.txt');
 
 % Structure file
 atom = import_pdb(Par.pdbfile{1},Par.pdbfile{2}); % Load structure
