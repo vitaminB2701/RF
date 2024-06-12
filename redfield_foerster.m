@@ -268,8 +268,8 @@ toc
             for nvibmode = 1:numel(vib.vibmode) %intravib modes
                 wma = ang_freq(Em(nChl)+vib.vibmode(nvibmode))-Er0*S0(nChl);
                 wmi = ang_freq(Em(nChl)-vib.vibmode(nvibmode))-Er0*S0(nChl);
-                intraviba = intraviba + vib.FCi01sq(nvibmode)*exp(1i.*(W'-wma)*t1).*exp(S0(nChl)*(Gt-Gt(1))-abs(t1)/taudeph*8);
-                intravibi = intravibi + vib.FCi01sq(nvibmode)*exp(-1i.*(W'-wmi)*t1).*exp(S0(nChl)*(Gt-Gt(1))-abs(t1)/taudeph*8);
+                intraviba = intraviba + vib.FCi01sq(nvibmode)*exp(1i.*(W'-wma)*t1).*exp(S0(nChl)*(Gt-Gt(1))-abs(t1)/taudeph);
+                intravibi = intravibi + vib.FCi01sq(nvibmode)*exp(-1i.*(W'-wmi)*t1).*exp(S0(nChl)*(Gt-Gt(1))-abs(t1)/taudeph);
             end
             Dma(:,nChl) = real(trapz(t1,intraviba,2))/(2*pi);
             Dmi(:,nChl) = real(trapz(t1,intravibi,2))/(2*pi);
