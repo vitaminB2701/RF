@@ -217,7 +217,7 @@ toc
     % Calculate spectra and dynamics for one realization
     function [E,U,Kr,Da,Di,Dma,Dmi] = redfield_lineshapes(Em,vib)
         % Diagonalize partitioned Hamiltonian
-        [E,U] = diag_hamiltonian(Em);
+        [E,U] = diag_hamiltonian(Em,vib);
         
         Kr = zeros(N); % Redfield rates
         Yr = eye(N); % Redfield Y
@@ -243,9 +243,9 @@ toc
     end
 
     % Diagonalize Hamiltonian by clusters
-    function [E,U] = diag_hamiltonian(Em)
+    function [E,U] = diag_hamiltonian(Em,vib)
         n = numel(Em);
-        H = diag(Em) + V;
+        H = diag(Em) + V*vib.FC00sq;
         E = zeros(n,1);
         U = zeros(n);
         for g = 1:size(ig,2)        
