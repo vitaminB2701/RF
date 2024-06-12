@@ -185,7 +185,7 @@ for iter = 1:Niter
         
         % Kinetics
         [P1,P2,TA1d(:,:,:,bl),TA2d(:,:,:,bl),TF1d(:,:,:,bl),TF2d(:,:,:,bl)]...
-            = solve_kin_model(X,Xexc,t,K,Ae,Da,Di,pol_par,pol_per,mu2);        
+            = solve_kin_model(X,Xexc,t,K,Ae,Da,Di,pol_par,pol_per,mux);        
         Pd(:,:,:,bl) = P1+2*P2;
         
         % Steady-state emission
@@ -351,13 +351,13 @@ fprintf('\nDone!\n');
     end
 
 %   Calculate linear spectra
-    function [A,Ae,Fe,mux2] = linear_spectra(U,Da,Di,Dma,Dmi,vib)
+    function [A,Ae,Fe,mux] = linear_spectra(U,Da,Di,Dma,Dmi,vib)
         
         % Transition dipole moments
         n = 1.4;          % refractive index
         mu = sqrt(D*n).*Dvec;   % monomeric dipole moments
         mux = U'*mu*vib.FC00;       % excitonic dipole moments
-        mux2 = sum(mux'.^2);
+        mux2 = sum(mux'.^2); % Square exciton dipole strengths
         Dma_x = (n*D'.*Dma)*(U.^2);
         Dmi_x = (n*D'.*Dmi)*(U.^2);
 %         % Absorption

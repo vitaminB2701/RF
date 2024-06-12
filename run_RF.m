@@ -64,4 +64,4 @@ atom = import_pdb(Par.pdbfile{1},Par.pdbfile{2}); % Load structure
 Par.C = calc_coupling(atom);
 
 %% Run calculation
-RF = redfield_foerster(atom,Epar,Par,fileout);
+RF = redfield_foerster(atom,Epar,Par,vib,fileout);

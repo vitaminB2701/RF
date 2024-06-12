@@ -1,8 +1,11 @@
-function [P1, P2, TA1, TA2, TF1, TF2, tau, a] = solve_kin_model(X,Xexc, t, K, Ae, Fe, pol_par, pol_per, mu2)
+function [P1, P2, TA1, TA2, TF1, TF2, tau, a] = solve_kin_model(X,Xexc, t, K, Ae, Da, Di, pol_par, pol_per, mux)
 % Solve kinetic model and calculate species populations and fluorescence 
 
 % Initial population
 N = size(K,1);
+
+% Square exciton dipole strengths
+mux2 = sum(mux'.^2);
 
 %% Solve system
 % Transfer matrix
@@ -46,13 +49,13 @@ for k = 1:numel(Xexc)
     end
 
     % Absorption and fluorescence kinetics
-    if exist('Ae','var')
-        ta1 = (mu2.*Da)*P1(:,:,k); TA1(:,:,k) = ta1';    
-        ta2 = (mu2.*Da)*P2(:,:,k); TA2(:,:,k) = ta2';
+    if exist('Da','var')
+        ta1 = (mux2.*Da)*P1(:,:,k); TA1(:,:,k) = ta1';    
+        ta2 = (mux2.*Da)*P2(:,:,k); TA2(:,:,k) = ta2';
 
     end
-    if exist('Fe','var')
-        tf1 = (mu2.*Di)*P1(:,:,k); TF1(:,:,k) = tf1';
-        tf2 = (mu2.*Di)*P2(:,:,k); TF2(:,:,k) = tf2';
+    if exist('Di','var')
+        tf1 = (mux2.*Di)*P1(:,:,k); TF1(:,:,k) = tf1';
+        tf2 = (mux2.*Di)*P2(:,:,k); TF2(:,:,k) = tf2';
     end
 end
