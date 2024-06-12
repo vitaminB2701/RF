@@ -24,6 +24,8 @@ end
 dat2D.X = flip(Par.X);
 dat2D.Y = flip(Par.exc)';
 dat2D.T = Par.t;
-dat2D.Abs = rot90(permute(-RF.TA,[3 2 1]),2)+rot90(permute(-RF.TF,[3 2 1]),2);
+dat2D.Abs1 = rot90(permute(-RF.TA1,[3 2 1]),2)+rot90(permute(-RF.TF1,[3 2 1]),2);
+dat2D.Abs2 = rot90(permute(-RF.TA2,[3 2 1]),2)+rot90(permute(-RF.TF2,[3 2 1]),2);
+dat2D.Abs = 1/3*dat2D.Abs1 + 2/3*dat2D.Abs2;
 %save 2D.mat dat2D
-plot2Ds(dat2D,1000,'unit','cm-1')
+plot2Ds(dat2D,1,'unit','cm-1')
