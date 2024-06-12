@@ -44,29 +44,20 @@ for a = 1:Ng
                     % Calculate couplings V_MN V_Mnb V_maN
                     % Renger et al J Plan Physiol 2011
                     if E(A) >= E(B) % Only for downhill transfer
-                        V_AB = 0;
-                        V_Anb = 0;
-                        V_maB = 0;
-                        k2 = 0; k3 = 0;
-                        % Site loop
-                        for nb = 1:N
-                            for ma = 1:N
-%                                 V_AB = V_AB + U(ma,A)*U(nb,B)*V(ma,nb)*vib.FC00sq;
-                                V_Anb = V_Anb + U(ma,A)*V(ma,nb)*vib.FC00*vib.FC01;
-                            end
-                            k2 = k2 + 1.183*U(nb,B)^2*V_Anb^2*trapz(X,Di(:,A).*Dma(:,nb));
-                        end
-                        for ma = 1:N
-                            for nb = 1:N
-                                V_maB = V_maB + U(nb,B)*V(nb,ma)*vib.FC00*vib.FC01;
-                            end
-                            k3 = k3 + 1.183*U(ma,A)^2*V_maB^2*trapz(X,Dmi(:,ma).*Da(:,B));
-                        end
-                        
+                        % Exciton-exciton coupling
+                        V_AB = U(:,A)'*V*U(:,B)*vib.FC00sq;
+                        % Exciton-vibration coupling
+                        V_Anb = (U(:,A)'*V(:,ib))'.*U(ib,B)*vib.FC00*vib.FC01;
+                        V_maB = (U(:,B)'*V(:,ia))'.*U(ia,A)*vib.FC00*vib.FC01;
+                        % Rate components
+                        k1 = 1.183*trapz(X,Di(:,A).*Da(:,B))*V_AB^2;
+                        k2 = 1.183*trapz(X,Di(:,A).*Dma(:,ib))*(V_Anb.^2);
+                        k3 = 1.183*trapz(X,Dmi(:,ia).*Da(:,B))*(V_maB.^2);
+
                         % Calculate rate constant
                         % Renger et al J Plan Physiol 2011
                         % Pullerits et al 1997 JPC
-                        K(B,A) = 1.183*V_AB^2*trapz(X,Di(:,A).*Da(:,B)) + k2 + k3;
+                        K(B,A) = k1 + k2 + k3;
                         
                         % Calculate uphill rate using detailed balance
                         K(A,B) = exp(-(E(A)-E(B))/kT)*K(B,A);
