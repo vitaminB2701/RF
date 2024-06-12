@@ -160,7 +160,7 @@ for iter = 1:Niter
         [E,U,Kr,Da,Di,Dma,Dmi] = feval(fun_redfield_lineshapes,Em,vib);
         
         % Förster rate constants
-        Kf = genfoerster(X,E,U,V,Da,Di,ig,T,vib.vibHR,Dma,Dmi);
+        Kf = genfoerster(X,E,U,V,Da,Di,ig,T,vib,Dma,Dmi);
         
         % Save
         Ed(:,bl) = E;

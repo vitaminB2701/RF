@@ -1,4 +1,4 @@
-function K = genfoerster(X,E,U,V,Da,Di,ig,T,vibHR,Dma,Dmi)
+function K = genfoerster(X,E,U,V,Da,Di,ig,T,vib,Dma,Dmi)
 % GENFOERSTER Calculate rates using generalized Förster theory
 %  Raszewski & Renger 2008, eq. 21
 %
@@ -21,27 +21,26 @@ kT = kB*T;  % boltzmann energy [cm^-1]
 
 N = size(U,1);
 K = zeros(N);
-FC00sq = prod(exp(-vibHR));
-FC01sq = prod(exp(-vibHR).*vibHR);
 
 % Area-normalizing exciton lineshapes and intravib lineshapes
 Da = Da./trapz(X,Da,1);
 Di = Di./trapz(X,Di,1);
-if sum(vibHR)~=0
+if sum(vib.vibHR)~=0
     Dma = Dma./trapz(X,Dma,1);
     Dmi = Dmi./trapz(X,Dmi,1);
 end
 
 % Loop over excitonic clusters (domains)
 Ng = size(ig,2);
+% Domain loop
 for a = 1:Ng
     ia = ig(:,a);
     for b = 1:Ng
         if b~=a
             ib = ig(:,b);
+            % Exciton loop
             for A = find(ia)'
-                for B = find(ib)'
-                    
+                for B = find(ib)'                    
                     % Calculate couplings V_MN V_Mnb V_maN
                     % Renger et al J Plan Physiol 2011
                     if E(A) >= E(B) % Only for downhill transfer
@@ -49,16 +48,17 @@ for a = 1:Ng
                         V_Anb = 0;
                         V_maB = 0;
                         k2 = 0; k3 = 0;
+                        % Site loop
                         for nb = 1:N
                             for ma = 1:N
-                                V_AB = V_AB + U(ma,A)*U(nb,B)*V(ma,nb)*FC00sq;
-                                V_Anb = V_Anb + U(ma,A)*V(ma,nb)*sqrt(FC00sq)*sqrt(FC01sq);
+%                                 V_AB = V_AB + U(ma,A)*U(nb,B)*V(ma,nb)*vib.FC00sq;
+                                V_Anb = V_Anb + U(ma,A)*V(ma,nb)*vib.FC00*vib.FC01;
                             end
                             k2 = k2 + 1.183*U(nb,B)^2*V_Anb^2*trapz(X,Di(:,A).*Dma(:,nb));
                         end
                         for ma = 1:N
                             for nb = 1:N
-                                V_maB = V_maB + U(nb,B)*V(nb,ma)*sqrt(FC00sq)*sqrt(FC01sq);
+                                V_maB = V_maB + U(nb,B)*V(nb,ma)*vib.FC00*vib.FC01;
                             end
                             k3 = k3 + 1.183*U(ma,A)^2*V_maB^2*trapz(X,Dmi(:,ma).*Da(:,B));
                         end

@@ -18,8 +18,8 @@ Par.exc = 14280:20:16700;    % Excitation frequency (for kinetics) [cm-1]
 Par.BlockSize = 6;  % Number of parallel runs in a block, for static disorder
 Par.Niter = 20; % Number of blocks to run (total=BlockSize*Niter)
 Par.taudeph = 0.300; % Pure dephasing time (ps)
-Par.energyfile = fullfile('Energy','Chlab.txt'); % File containing ID, site E,...
-Par.pdbfile = {fullfile('pdb','Chlab.pdb'),'Y'}; % File containing pdb name and specify chains
+Par.energyfile = fullfile('Energy','LHCIImon.txt'); % File containing ID, site E,...
+Par.pdbfile = {fullfile('pdb','5xnm.pdb'),'Y'}; % File containing pdb name and specify chains
 
 % Output file
 fileout = "RF_out"+'_'+datestr(now,'yyyymmdd_HHMMss')+'.mat';
@@ -38,6 +38,8 @@ vib.FCi00 = sqrt(vib.FCi00sq);
 vib.FCi01 = sqrt(vib.FCi01sq);
 vib.FC00sq = prod(vib.FCi00sq);
 vib.FC00 = sqrt(vib.FC00sq);
+vib.FC01sq = prod(vib.FCi01sq);
+vib.FC01 = sqrt(vib.FC01sq);
 
 % Structure file
 atom = import_pdb(Par.pdbfile{1},Par.pdbfile{2}); % Load structure
