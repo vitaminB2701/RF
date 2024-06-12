@@ -1,4 +1,4 @@
-function RF = redfield_foerster(atom,Epar,Par,vibpar,fileout)
+function RF = redfield_foerster(atom,Epar,Par,vib,fileout)
 % Redfield-Förster model calculation
 %
 % Input
@@ -119,16 +119,6 @@ nvibn = 1./(exp(-x/(kB*T))-1); % (eq. S5)
 J = spectral_density(w);
 Jn = spectral_density(-w);
 
-%% Intramolecular vibrational term                         
-vibmode = vibpar(:,1);                                               
-vibHR = vibpar(:,2); 
-FCi00sq = exp(-vibHR);
-FC00sq = prod(FCi00sq);
-FCi00 = sqrt(FCi00sq);
-FC00 = sqrt(FC00sq);
-FCi01sq = exp(-vibHR).*vibHR;
-FCi01 = sqrt(FCi01sq);
-
 %% Monte-Carlo sampling of disorder
 rng;
 
@@ -167,10 +157,10 @@ for iter = 1:Niter
         Em = E0 - randn(N,1).*cinh;
         
         % Redfield and exciton lineshapes
-        [E,U,Kr,Da,Di,Dma,Dmi] = feval(fun_redfield_lineshapes,Em);
+        [E,U,Kr,Da,Di,Dma,Dmi] = feval(fun_redfield_lineshapes,Em,vib);
         
         % Förster rate constants
-        Kf = genfoerster(X,E,U,V,Da,Di,ig,T,vibHR,Dma,Dmi);
+        Kf = genfoerster(X,E,U,V,Da,Di,ig,T,vib.vibHR,Dma,Dmi);
         
         % Save
         Ed(:,bl) = E;
@@ -179,7 +169,7 @@ for iter = 1:Niter
         Kd(:,:,bl) = K;
         
         % Calculate linear spectra
-        [Ad(:,bl),Ae,Fe,mu2] = feval(fun_linear_spectra,E,U,Da,Di,Dma,Dmi);
+        [Ad(:,bl),Ae,Fe,mu2] = feval(fun_linear_spectra,U,Da,Di,Dma,Dmi,vib);
         Aed(:,:,bl) = Ae;
         Fed(:,:,bl) = Fe;
         
@@ -225,7 +215,7 @@ toc
 
 %% Subroutines
     % Calculate spectra and dynamics for one realization
-    function [E,U,Kr,Da,Di,Dma,Dmi] = redfield_lineshapes(Em)
+    function [E,U,Kr,Da,Di,Dma,Dmi] = redfield_lineshapes(Em,vib)
         % Diagonalize partitioned Hamiltonian
         [E,U] = diag_hamiltonian(Em);
         
@@ -234,7 +224,7 @@ toc
         
         Da = zeros(length(X),N); % absorption lineshape
         Di = zeros(length(X),N); % emission lineshape
-        [Dma,Dmi] = intraviblineshape(Em,D); % localized intravibronic lineshape
+        [Dma,Dmi] = intraviblineshape(Em,vib); % localized intravibronic lineshape
         for k = 1:size(ig,2)
             ix = ig(:,k); % cluster indices
             
@@ -268,20 +258,18 @@ toc
     end
 
     %Calculate absorption and emission exciton lineshapes
-    function [Dma,Dmi] = intraviblineshape(Em,D)
+    function [Dma,Dmi] = intraviblineshape(Em,vib)
         Dma = zeros(numX,numel(Em));
         Dmi = zeros(numX,numel(Em));
         % Transition dipole moments
-        n = 1.4;                        % refractive index
-        mupig = sqrt(D);                % full pigments transition dipole moments
         for nChl = 1:numel(Em)
             intraviba = zeros(1,numel(t1));
             intravibi = zeros(1,numel(t1));
-            for nvibmode = 1:numel(vibmode) %intravib modes
-                wma = ang_freq(Em(nChl)+vibmode(nvibmode))-Er0*S0(nChl);
-                wmi = ang_freq(Em(nChl)-vibmode(nvibmode))-Er0*S0(nChl);
-                intraviba = intraviba + FCi01sq(nvibmode)*exp(1i.*(W'-wma)*t1).*exp(S0(nChl)*(Gt-Gt(1))-abs(t1)/taudeph*8);
-                intravibi = intravibi + FCi01sq(nvibmode)*exp(-1i.*(W'-wmi)*t1).*exp(S0(nChl)*(Gt-Gt(1))-abs(t1)/taudeph*8);
+            for nvibmode = 1:numel(vib.vibmode) %intravib modes
+                wma = ang_freq(Em(nChl)+vib.vibmode(nvibmode))-Er0*S0(nChl);
+                wmi = ang_freq(Em(nChl)-vib.vibmode(nvibmode))-Er0*S0(nChl);
+                intraviba = intraviba + vib.FCi01sq(nvibmode)*exp(1i.*(W'-wma)*t1).*exp(S0(nChl)*(Gt-Gt(1))-abs(t1)/taudeph*8);
+                intravibi = intravibi + vib.FCi01sq(nvibmode)*exp(-1i.*(W'-wmi)*t1).*exp(S0(nChl)*(Gt-Gt(1))-abs(t1)/taudeph*8);
             end
             Dma(:,nChl) = real(trapz(t1,intraviba,2))/(2*pi);
             Dmi(:,nChl) = real(trapz(t1,intravibi,2))/(2*pi);
@@ -350,12 +338,12 @@ toc
     end
 
 %   Calculate linear spectra
-    function [A,Ae,Fe,mux2] = linear_spectra(E,U,Da,Di,Dma,Dmi)
+    function [A,Ae,Fe,mux2] = linear_spectra(U,Da,Di,Dma,Dmi,vib)
         
         % Transition dipole moments
         n = 1.4;          % refractive index
         mu = sqrt(D*n).*Dvec;   % monomeric dipole moments
-        mux = U'*mu*FC00;       % excitonic dipole moments
+        mux = U'*mu*vib.FC00;       % excitonic dipole moments
         mux2 = sum(mux'.^2);
         Dma_x = (n*D'.*Dma)*(U.^2);
         Dmi_x = (n*D'.*Dmi)*(U.^2);
