@@ -53,5 +53,11 @@ if ~isequal(Par.C.molid,Epar.ID)
     error("Molecule IDs in structure and energy files do not match");
 end
 
+% Mask to manipulate K matrix
+Kmask = ones(length(Par.C.chain));
+Kmask(Par.C.chain=='R',Par.C.chain~='R') = 0;
+Kmask(Par.C.chain=='4',Par.C.chain~='4') = 0;
+Par.Kmask = Kmask.*Kmask';
+
 %% Run calculation
 RF = redfield_foerster(atom,Epar,Par,fileout);

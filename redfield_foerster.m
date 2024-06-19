@@ -165,6 +165,7 @@ for iter = 1:Niter
         
         % Förster rate constants
         Kf = genfoerster(X,E,U,V,Da,Di,ig,T);
+        Kf = Kf.*Par.Kmask;
         
         % Save
         Ed(:,bl) = E;
