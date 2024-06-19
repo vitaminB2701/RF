@@ -33,8 +33,8 @@ Par.exc = 14280:20:16700;    % Excitation frequency (for kinetics) [cm-1]
 Par.BlockSize = 6;  % Number of parallel runs in a block, for static disorder
 Par.Niter = 100; % Number of blocks to run (total=BlockSize*Niter)
 Par.taudeph = 0.150; % Pure dephasing time (ps)
-Par.energyfile = fullfile('Energy','LHCIItri.txt'); % File containing ID, site E,...
-Par.pdbfile = {fullfile('pdb','5xnm.pdb'),'GNY'}; % File containing pdb name and specify chains
+Par.energyfile = fullfile('Energy','LHCIIpent_cohen2009_250shifted.txt'); % File containing ID, site E,...
+Par.pdbfile = {fullfile('pdb','5xnm_123R_CLA616removed.pdb'),'1234R'}; % File containing pdb name and specify chains
 
 % Output file
 fileout = "RF_out"+'_'+datestr(now,'yyyymmdd_HHMMss')+'.mat';
@@ -47,6 +47,11 @@ atom = import_pdb(Par.pdbfile{1},Par.pdbfile{2}); % Load structure
 
 % Coupling information
 Par.C = calc_coupling(atom);
+
+% Check consistency between structure and energy file
+if ~isequal(Par.C.molid,Epar.ID)
+    error("Molecule IDs in structure and energy files do not match");
+end
 
 %% Run calculation
 RF = redfield_foerster(atom,Epar,Par,fileout);
