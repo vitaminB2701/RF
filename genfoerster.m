@@ -45,15 +45,14 @@ for a = 1:Ng
                             end
                         end
                         
-                        % Calculate rate constant
-                        % Raszewski & Renger 2008 eq. 21
-                        % Pullerits et al 1997 JPC
+                    % Calculate rate constants with detail balance
+                    % There are 2 methods:
+                        % Raszewski & Renger 2008 eq. 21,Pullerits et al 1997 JPC
 %                         K(n,m) = 1.183*Vmn^2*trapz(X,Di(:,m).*Da(:,n));
-                        K(n,m) = 1.183*Vmn^2*(trapz(X,Di(:,m).*Da(:,n))+trapz(X,Di(:,n).*Da(:,m)));
-                        
-                        % Calculate uphill rate using detailed balance
 %                         K(m,n) = exp(-(E(m)-E(n))/kT)*K(n,m);
-                        % Scale to detailed balance
+                        
+                        % Oxtoby
+                        K(n,m) = 1.183*Vmn^2*(trapz(X,Di(:,m).*Da(:,n))+trapz(X,Di(:,n).*Da(:,m)));
                         K(m,n) = 1/(1+exp(-(E(n)-E(m))/kT))*K(n,m);
                         K(n,m) = 1/(1+exp(-(E(m)-E(n))/kT))*K(n,m);
 
