@@ -33,8 +33,8 @@ Par.exc = 14280:20:16700;    % Excitation frequency (for kinetics) [cm-1]
 Par.BlockSize = 6;  % Number of parallel runs in a block, for static disorder
 Par.Niter = 100; % Number of blocks to run (total=BlockSize*Niter)
 Par.taudeph = 0.150; % Pure dephasing time (ps)
-Par.energyfile = fullfile('Energy','dCore.txt'); % File containing ID, site E,...
-Par.pdbfile = {fullfile('pdb','5xnm.pdb'),'abcdABCD'}; % File containing pdb name and specify chains
+Par.energyfile = fullfile('Energy','LHCIIpent_cohen2009_250shifted.txt'); % File containing ID, site E,...
+Par.pdbfile = {fullfile('pdb','5xnm_123R_CLA616removed.pdb'),'1234R'}; % File containing pdb name and specify chains
 
 % Output file
 fileout = "RF_out"+'_'+datestr(now,'yyyymmdd_HHMMss')+'.mat';
@@ -57,8 +57,10 @@ end
 Kmask = ones(length(Par.C.chain));
     % Use this section to manipulate Kmask, comment if unused
     %--------------------------------------------------------
-% Kmask(Par.C.chain=='R',Par.C.chain~='R') = 0; % Block all connections with a chain
-% Kmask(~~sum(Par.C.chain=='ABCDS',2),~sum(Par.C.chain=='ABCDS',2)) = 0; % Block all connections with multiple chains
+% Block all connections between 2 groups of chains
+% Kmask(~~sum(Par.C.chain=='4',2),~~sum(Par.C.chain=='123',2)) = 0.1; 
+% Modify all connections from a group of chains
+% Kmask(~~sum(Par.C.chain=='4R',2),~sum(Par.C.chain=='4R',2)) = 0;
     %--------------------------------------------------------
 Par.Kmask = Kmask.*Kmask';
 
