@@ -31,16 +31,6 @@ Par.Niter = 10; % Number of blocks to run (total=BlockSize*Niter)
 Par.taudeph = 0.150; % Pure dephasing time (ps)
 Par.energyfile = fullfile('Energy','C1S1.txt'); % File containing ID, site E,...
 Par.pdbfile = {fullfile('pdb','5xnm.pdb'),'ABCDGYNS'}; % File containing pdb name and specify chains
-% Mask to manipulate K matrix
-Kmask = ones(length(Par.C.chain));
-    % Use this section to manipulate Kmask, comment if unused
-    %--------------------------------------------------------
-% Block all connections between 2 groups of chains
-% Kmask(~~sum(Par.C.chain=='4',2),~~sum(Par.C.chain=='123',2)) = 0.1; 
-% Modify all connections from a group of chains
-% Kmask(~~sum(Par.C.chain=='4R',2),~sum(Par.C.chain=='4R',2)) = 0;
-    %--------------------------------------------------------
-Par.Kmask = Kmask.*Kmask';
 
 % Output file
 fileout = "RF_out"+'_'+datestr(now,'yyyymmdd_HHMMss')+'.mat';
