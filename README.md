@@ -2,9 +2,8 @@
 
 The codes should be run in MATLAB.
 
-1. Run run_RF.m
-
-2. Plot main results with plot_RF.m
+1. Prepare input parameters in input_RF.m 
+2. Run run_RF.m
 
 ### References:
 
